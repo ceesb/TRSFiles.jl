@@ -1,11 +1,11 @@
-# Trsfile
+# Trsfiles
 
 A Julia library to read and write Keysight / Riscure Inspector TRS files.
 
 ## Reading
 
 ```
-using Trsfile
+using Trsfiles
 
 trs = trs_open("bla.trs")
 
@@ -29,7 +29,7 @@ The read code uses mmap, is thread-safe, there's no locking, and no allocations.
 You can create a file from scratch, or append to an existing file. Writing is completely distinct from reading, and you cannot open a file in both "write and read" mode, or "append and read" mode. I implemented the writing code mostly for unit testing the reading code.
 
 ```
-using Trsfile
+using Trsfiles
 
 ntitle = 0
 ndata = 48
@@ -37,11 +37,11 @@ nsamples = 100
 sampletype = Int8
 
 trs = trs_open("bla.trs", "w"; header = Dict(
-        Trsfile.TITLE_SPACE => ntitle,
-        Trsfile.LENGTH_DATA => ndata,
-        Trsfile.NUMBER_SAMPLES => nsamples,
-        Trsfile.SAMPLE_CODING => trs_coding(sampletype),
-        Trsfile.TRACE_PARAMETER_DEFINITIONS => Dict(
+        Trsfiles.TITLE_SPACE => ntitle,
+        Trsfiles.LENGTH_DATA => ndata,
+        Trsfiles.NUMBER_SAMPLES => nsamples,
+        Trsfiles.SAMPLE_CODING => trs_coding(sampletype),
+        Trsfiles.TRACE_PARAMETER_DEFINITIONS => Dict(
             "INPUT" => TraceParam(trs_coding(UInt8), 16, 0),
             "KEY" => TraceParam(trs_coding(UInt8), 16, 16),
             "OUTPUT" => TraceParam(trs_coding(UInt8), 16, 32),

@@ -172,11 +172,11 @@ check and adjust the data length so that it fits.
 Example use:
 ```
 trs = trs_open("bla.trs", "w"; header = Dict(
-        Trsfile.TITLE_SPACE => ntitle,
-        Trsfile.LENGTH_DATA => ndata,
-        Trsfile.NUMBER_SAMPLES => nsamples,
-        Trsfile.SAMPLE_CODING => trs_coding(sampletype),
-        Trsfile.TRACE_PARAMETER_DEFINITIONS => Dict(
+        Trsfiles.TITLE_SPACE => ntitle,
+        Trsfiles.LENGTH_DATA => ndata,
+        Trsfiles.NUMBER_SAMPLES => nsamples,
+        Trsfiles.SAMPLE_CODING => trs_coding(sampletype),
+        Trsfiles.TRACE_PARAMETER_DEFINITIONS => Dict(
             "INPUT" => TraceParam(trs_coding(UInt8), 16, 0),
             "KEY" => TraceParam(trs_coding(UInt8), 16, 16),
             "OUTPUT" => TraceParam(trs_coding(UInt8), 16, 32),
