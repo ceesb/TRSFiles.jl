@@ -1,13 +1,17 @@
 name = "TRSFiles"
-uuid = "D4B2941C-F37A-4EC9-8241-9A5E52A0F7FD"
+uuid = "d4b2941c-f37a-4ec9-8241-9a5e52a0f7fd"
 authors = ["Cees-Bart Breunesse <ceeesb@gmail.com>"]
 version = "0.1.0"
 
 [deps]
 Mmap = "a63ad114-7e13-5084-954f-fe012c677804"
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [compat]
-julia = "1.11"
 Mmap = "1.11.0"
-Test = "1.11.0"
+julia = "1.11"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
