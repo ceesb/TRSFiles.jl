@@ -156,9 +156,32 @@ end
 
 export TraceParam
 """
+Encodes a trace parameter
+
 - typ is a coding byte, see trs_coding
-- len is the number of elements
-- offset is the byte offset in the data field
+- len is the number of elements (i.e. number of bytes is len * typ.width)
+- offset is the byte offset in the data field where this param lives
+
+For example `TraceParam(trs_coding(UInt16), 16, 0)` is a 16 element short 
+array at byte offset 0. A next parameter would thus be at byte offset 32 (even though
+you probably shouldn't overlap parameters, the library allows it).
+
+When you create a TRS file and your header has trace parameters, we sanity 
+check and adjust the data length so that it fits.
+
+Example use:
+```
+trs = trs_open("bla.trs", "w"; header = Dict(
+        Trsfile.TITLE_SPACE => ntitle,
+        Trsfile.LENGTH_DATA => ndata,
+        Trsfile.NUMBER_SAMPLES => nsamples,
+        Trsfile.SAMPLE_CODING => trs_coding(sampletype),
+        Trsfile.TRACE_PARAMETER_DEFINITIONS => Dict(
+            "INPUT" => TraceParam(trs_coding(UInt8), 16, 0),
+            "KEY" => TraceParam(trs_coding(UInt8), 16, 16),
+            "OUTPUT" => TraceParam(trs_coding(UInt8), 16, 32),
+        )))
+```
 """
 struct TraceParam
     typ::UInt8

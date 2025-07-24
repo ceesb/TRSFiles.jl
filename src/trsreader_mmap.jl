@@ -15,12 +15,10 @@ struct Traceset
     filename::AbstractString
 end
 
-import Base.length
-length(ts::Traceset) = ts.ntraces
+Base.length(ts::Traceset) = ts.ntraces
 
-import Base.size
-size(ts::Traceset) = (get(ts.header, NUMBER_SAMPLES, 0), ts.ntraces)
-function size(ts::Traceset, idx)
+Base.size(ts::Traceset) = (get(ts.header, NUMBER_SAMPLES, 0), ts.ntraces)
+function Base.size(ts::Traceset, idx)
     return size(ts)[idx]
 end
     
@@ -66,6 +64,10 @@ function Traceset(mm::Vector{UInt8}, header::Dict{UInt8,Any}, filesize, filename
 end
 
 export trs_open
+"""
+Opens a trace set, you can use modes "r" or "w" or "a", but no combinations. Using mode "w" 
+requires you to pass a header dictionary.
+"""
 function trs_open(path::AbstractString, mode::AbstractString = "r"; header = nothing)
     if mode == "r"
         header = parse_trs_header(path)
@@ -110,7 +112,48 @@ struct Data{T} <: AbstractMatrix{T}
     nrows::Int         # number of elements
 end
 
+export trs_xaxis
+"""
+Returns the values of the x-axis for this trace set
+"""
+function trs_xaxis(ts::Traceset)
+    xoffset = get(ts.header, OFFSET_X, 0)
+    xscale = get(ts.header, SCALE_X, 1)
+    nsamples = ts.header[NUMBER_SAMPLES]
+
+    ((0 : nsamples - 1) .- xoffset) .* xscale
+end
+
+export trs_xlabel
+"""
+Returns the label for the x-axis for this trace set, or "" if none
+"""
+function trs_xlabel(ts::Traceset)
+    get(ts.header, LABEL_X, "")
+end
+
+export trs_yscsale
+"""
+Returns the scaling factor for the y-values in this traces. Multiplying the samples
+with this factor makes the values of the unit label returned by `trs_ylabel`.
+"""
+function trs_yscale(ts::Traceset)
+    get(ts.header, SCALE_Y, 1)
+end
+
+export trs_ylabel
+"""
+Returns the label for the y-axis for this trace set, or "" if none
+"""
+function trs_ylabel(ts::Traceset)
+    get(ts.header, LABEL_X, "")
+end
+
 export trs_samples
+"""
+Returns a matrix view of the samples in the trace set. 
+Every column `i` contains the samples of trace `i`.
+"""
 function trs_samples(ts::Traceset)
     coding = PRIMTYPES[ts.header[SAMPLE_CODING]]
     offset = ts.samples_offset
@@ -125,12 +168,24 @@ function trs_samples(ts::Traceset)
 end
 
 export trs_data_keys
+"""
+Returns a set of the data keys in the trace set, for 
+example "LEGACY_DATA" or "INPUT", "OUTPUT", etc.
+
+These keys are used as the key parameters in `trs_data`.
+"""
 function trs_data_keys(ts::Traceset)
     haskey(ts.header, TRACE_PARAMETER_DEFINITIONS) || return nothing
     return keys(ts.header[TRACE_PARAMETER_DEFINITIONS])
 end
 
 export trs_data
+"""
+Returns a matrix view of the data for key `key` in the trace set. 
+Every column `i` contains the data for key `key` of trace `i`.
+
+Calling this function without a key returns a matrix view of all data.
+"""
 function trs_data(ts::Traceset, key::String)
     haskey(ts.header, TRACE_PARAMETER_DEFINITIONS) || error("trs set has no trace param defs")
     param = ts.header[TRACE_PARAMETER_DEFINITIONS][key]
@@ -147,6 +202,10 @@ function trs_data(ts::Traceset)
 end
 
 export trs_title
+"""
+Returns a matrix view of the title bytes in the trace set. 
+Every column `i` contains the title bytes of trace `i`.
+"""
 function trs_title(ts::Traceset)
     offset = ts.title_offset
     nrows = ts.title_length

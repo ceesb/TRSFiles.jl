@@ -22,11 +22,11 @@ Newer TRS files have "trace parameter data", which are just named and typed view
 data_input = trs_data(trs, "INPUT")
 ```
 
-The read code uses mmap, is thread-safe, there's no locking and no allocations.
+The read code uses mmap, is thread-safe, there's no locking, and no allocations.
 
 ## Writing
 
-You can create a file from scratch, or append to an existing file. Writing is completely distinct from reading, and you cannot open a file in both write and read mode, or append and read mode. I implemented the writing code mostly for unit testing the reading code.
+You can create a file from scratch, or append to an existing file. Writing is completely distinct from reading, and you cannot open a file in both "write and read" mode, or "append and read" mode. I implemented the writing code mostly for unit testing the reading code.
 
 ```
 using Trsfile
@@ -69,4 +69,4 @@ end
 trs_close(trs)
 ```
 
-The write code is also thread-safe, but uses locks.
+The write code is thread-safe, but uses locks.
