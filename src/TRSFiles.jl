@@ -1,4 +1,4 @@
-module Trsfiles
+module TRSFiles
 
 include("trsheader.jl")
 include("trsheader_serialize.jl")

@@ -1,5 +1,5 @@
-using Trsfiles
-import Trsfiles: PRIMTYPES, HEADER_TAGS, TraceParam
+using TRSFiles
+import TRSFiles: PRIMTYPES, HEADER_TAGS, TraceParam
 
 using Test
 
@@ -32,7 +32,7 @@ function genheader(ntraces = 100, nsamples = 200, ntitle = 16)
 
                 tsp[name] = val
             end
-            header[Trsfiles.TRACE_SET_PARAMETERS] = tsp     
+            header[TRSFiles.TRACE_SET_PARAMETERS] = tsp     
 
         elseif datatype == :trace_parameter_definitions
             nparameters = rand(1:10)
@@ -52,14 +52,14 @@ function genheader(ntraces = 100, nsamples = 200, ntitle = 16)
                 tpd[name] = tp
             end
 
-            header[Trsfiles.TRACE_PARAMETER_DEFINITIONS] = tpd
+            header[TRSFiles.TRACE_PARAMETER_DEFINITIONS] = tpd
         end
     end
 
-    header[Trsfiles.NUMBER_TRACES] = ntraces
-    header[Trsfiles.NUMBER_SAMPLES] = nsamples
-    header[Trsfiles.TITLE_SPACE] = ntitle
-    header[Trsfiles.SAMPLE_CODING] = rand(keys(Trsfiles.PRIMTYPES))
+    header[TRSFiles.NUMBER_TRACES] = ntraces
+    header[TRSFiles.NUMBER_SAMPLES] = nsamples
+    header[TRSFiles.TITLE_SPACE] = ntitle
+    header[TRSFiles.SAMPLE_CODING] = rand(keys(TRSFiles.PRIMTYPES))
     return header
 end
 
@@ -72,11 +72,11 @@ function test()
 
     trsout = trs_open(fname, "w"; header = header)
     sampletype = typeof(trsout).parameters[1]
-    header[Trsfiles.LENGTH_DATA]
+    header[TRSFiles.LENGTH_DATA]
 
     samples = rand(sampletype, nsamples, ntraces)
     title = rand(UInt8, ntitle, ntraces)
-    data = rand(UInt8, header[Trsfiles.LENGTH_DATA], ntraces)
+    data = rand(UInt8, header[TRSFiles.LENGTH_DATA], ntraces)
     
     for t in 1 : ntraces
         @views begin
@@ -119,11 +119,11 @@ function test()
     if !isnothing(keys)
         for key in keys
             datakey = trs_data(trsin, key)
-            tp = trsin.header[Trsfiles.TRACE_PARAMETER_DEFINITIONS][key]
+            tp = trsin.header[TRSFiles.TRACE_PARAMETER_DEFINITIONS][key]
             offset = tp.offset
             len = tp.len
-            width = Trsfiles.PRIMTYPES[tp.typ].width
-            eltyp = Trsfiles.PRIMTYPES[tp.typ].eltype
+            width = TRSFiles.PRIMTYPES[tp.typ].width
+            eltyp = TRSFiles.PRIMTYPES[tp.typ].eltype
             for t in 1 : ntraces
                 @views begin
                     expected = reinterpret(eltyp, data[offset + 1 : offset + len * width, t])
