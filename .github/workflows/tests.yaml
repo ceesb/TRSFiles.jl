@@ -1,0 +1,26 @@
+name: Run Julia tests
+
+on:
+  push:
+    branches:
+      - '**'   # Run on all branches
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Julia
+        uses: julia-actions/setup-julia@v2
+        with:
+          version: '1.11'  # Adjust to the Julia version your package supports
+
+      - name: Instantiate project
+        run: julia --project -e 'using Pkg; Pkg.instantiate()'
+
+      - name: Run tests
+        run: julia --project -e 'using Pkg; Pkg.test()'
