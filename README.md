@@ -1,3 +1,5 @@
+[![](https://img.shields.io/badge/docs-green.svg)](https://ceesb.github.io/TRSFiles.jl/)
+
 # TRSFiles
 
 A Julia library to read and write Keysight / Riscure Inspector TRS files.
