@@ -4,6 +4,12 @@
 
 A Julia library to read and write Keysight / Riscure Inspector TRS files.
 
+## Installation
+
+```julia
+import Pkg; Pkg.add("TRSFiles")
+```
+
 ## Reading
 
 ```julia
@@ -17,11 +23,25 @@ data = trs_data(trs)
 
 Methods `trs_samples` and `trs_data` return a lazy matrix view of the samples and data in the trace set (column wise). You can call any function on these matrices but it works best with optimized column based readers, because these TRS are typically huge and you don't want to read them row-wise.
 
-Newer TRS files have "trace parameter data", which are just named and typed views on the data field. 
+For example, compute the sample mean over all traces:
+```julia
+using Statistics
+
+mean(samples; dims = 2)
+```
+
+Newer TRS files have "trace parameter data", which are just named and typed views on the data field.
 
 ```julia
 @show trs_data_keys(trs)
 data_input = trs_data(trs, "INPUT")
+```
+
+If you have a trace set and you want to see all the headers, there's an unexported
+function that you can call which dumps the header on stdout:
+
+```julia
+TRSFiles.dumpheaders(trs.header)
 ```
 
 The read code uses mmap, is thread-safe, there's no locking, and no allocations.
