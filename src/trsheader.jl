@@ -72,7 +72,11 @@ export trs_coding
 """
 returns the byte that encodes a julia type (or nothing if not supported)
 """
-trs_coding(::Type{T}) where {T} = findfirst(x -> x.eltype == (T == Int8 ? UInt8 : T), PRIMTYPES)
+trs_coding(::Type{T}) where {T} = findfirst(
+    x -> x.eltype == (T == Int8 ? UInt8 : T) && x.symbol != :STRING,
+    PRIMTYPES)
+
+trs_coding(::Type{String}) = 0x20
 
 # Read length with optional multi-byte length as per TLV spec
 function read_length(io)
