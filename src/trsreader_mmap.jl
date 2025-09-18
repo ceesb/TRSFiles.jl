@@ -63,6 +63,24 @@ function Traceset(mm::Vector{UInt8}, header::Dict{UInt8,Any}, filesize, filename
     )
 end
 
+
+# constants from sys/mman.h
+const MADV_NORMAL     = 0
+const MADV_RANDOM     = 1
+const MADV_SEQUENTIAL = 2
+const MADV_WILLNEED   = 3
+const MADV_DONTNEED   = 4
+
+function madvise!(arr, advice)
+    p = pointer(arr)
+    len = sizeof(arr)
+    ret = ccall(:madvise, Cint, (Ptr{Cvoid}, Csize_t, Cint), p, len, advice)
+    if ret != 0
+        throw(SystemError("madvise", Base._errno()))
+    end
+    return arr
+end
+
 export trs_open
 """
 Opens a trace set, you can use modes "r" or "w" or "a", but no combinations. Using mode "w" 
@@ -75,6 +93,7 @@ function trs_open(path::AbstractString, mode::AbstractString = "r"; header = not
         filesize = stat(path).size
 
         mm = Mmap.mmap(path)
+        # madvise!(mm, MADV_SEQUENTIAL)
         Traceset(mm, header, filesize, path)
     elseif mode == "a"
         header = parse_trs_header(path)
@@ -121,7 +140,7 @@ function trs_xaxis(ts::Traceset)
     xscale = get(ts.header, SCALE_X, 1)
     nsamples = ts.header[NUMBER_SAMPLES]
 
-    ((0 : nsamples - 1) .- xoffset) .* xscale
+    (xoffset : xoffset + nsamples - 1) .* xscale
 end
 
 export trs_xlabel

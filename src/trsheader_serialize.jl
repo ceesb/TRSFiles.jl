@@ -73,7 +73,7 @@ end
 
 function write_trace_parameter_definitions(io::IO, defs::Dict{String,TraceParam})
     write(io, UInt16(length(defs)))
-    for (k, tp) in defs
+    for (k, tp) in sort(collect(defs); by = p -> p[2].offset)
         write_parameter_name(io, k)
         haskey(PRIMTYPES, tp.typ) || error("param type $(tp.typ) does not exist")
         write(io, UInt8(tp.typ))
