@@ -20,6 +20,7 @@ function genheader(ntraces = 100, nsamples = 200, ntitle = 16)
             nparameters = rand(1:10)
 
             tsp = Dict{String, Any}()
+
             for i in 1 : nparameters
                 name = String(rand(0x61:0x7a, 32))
                 eltype = rand([String, UInt8, Int16, Int32, Int64, Float32, Float64, Bool])
@@ -38,6 +39,7 @@ function genheader(ntraces = 100, nsamples = 200, ntitle = 16)
             nparameters = rand(1:10)
 
             tpd = Dict{String, TraceParam}()
+            tpd2 = Vector{Pair{String, Tuple{DataType,Int}}}(undef, 0)
             offset = 0
             for i in 1 : nparameters
                 name = String(rand(0x61:0x7a, 32))
@@ -50,8 +52,10 @@ function genheader(ntraces = 100, nsamples = 200, ntitle = 16)
                 tp = TraceParam(typ, len, offset)
                 offset += len * width
                 tpd[name] = tp
+                push!(tpd2, name => (eltype, len))
             end
 
+            @test create_trace_parameter_definitions(tpd2...) == tpd
             header[TRSFiles.TRACE_PARAMETER_DEFINITIONS] = tpd
         end
     end
@@ -101,7 +105,9 @@ function test()
             end
         end
     end
-    
+
+    @test trs_global_data(trsin) == header[TRSFiles.TRACE_SET_PARAMETERS]
+
     insamples = trs_samples(trsin)
     intitle = trs_title(trsin)
     indata = trs_data(trsin)

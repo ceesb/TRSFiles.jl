@@ -41,7 +41,7 @@ If you have a trace set and you want to see all the headers, there's an unexport
 function that you can call which dumps the header on stdout:
 
 ```julia
-TRSFiles.dumpheaders(trs.header)
+TRSFiles.dumpheader(trs.header)
 ```
 
 The read code uses mmap, is thread-safe, there's no locking, and no allocations.
@@ -54,25 +54,29 @@ You can create a file from scratch, or append to an existing file. Writing is co
 using TRSFiles
 
 ntitle = 0
-ndata = 48
+nkey = 16
+ninput = 16
+noutput = 16
 nsamples = 100
 sampletype = Int8
 
 trs = trs_open("bla.trs", "w"; header = Dict(
         TRSFiles.TITLE_SPACE => ntitle,
-        TRSFiles.LENGTH_DATA => ndata,
         TRSFiles.NUMBER_SAMPLES => nsamples,
         TRSFiles.SAMPLE_CODING => trs_coding(sampletype),
-        TRSFiles.TRACE_PARAMETER_DEFINITIONS => Dict(
-            "INPUT" => TraceParam(trs_coding(UInt8), 16, 0),
-            "KEY" => TraceParam(trs_coding(UInt8), 16, 16),
-            "OUTPUT" => TraceParam(trs_coding(UInt8), 16, 32),
+        TRSFiles.TRACE_SET_PARAMETERS => Dict(
+            "SOMEGLOBALVALUE" => Int32[1,2,3],
+        ),
+        TRSFiles.TRACE_PARAMETER_DEFINITIONS => create_trace_parameter_definitions(
+            "INPUT" => (UInt8,ninput),
+            "KEY" => (UInt8,nkey),
+            "OUTPUT" => (UInt8,noutput)
         )))
 
 for t in 1 : 10
     trs_append(trs,
         rand(UInt8, ntitle),
-        rand(UInt8, ndata),
+        vcat(rand(UInt8, ninput),rand(UInt8, nkey),rand(UInt8, noutput)),
         rand(sampletype, nsamples))
 end
 
@@ -84,7 +88,7 @@ trs = trs_open("bla.trs", "a")
 for t in 1 : 10
     trs_append(trs,
         rand(UInt8, ntitle),
-        rand(UInt8, ndata),
+        vcat(rand(UInt8, ninput),rand(UInt8, nkey),rand(UInt8, noutput)),
         rand(sampletype, nsamples))
 end
 

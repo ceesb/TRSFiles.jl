@@ -44,7 +44,7 @@ function write_parameter_name(io::IO, name::String)
     write(io, b)
 end
 
-function write_trace_set_parameters(io::IO, params::Dict{String,Any})
+function write_trace_set_parameters(io::IO, params::Dict)
     write(io, UInt16(length(params)))
     for (k, v) in params
         write_parameter_name(io, k)

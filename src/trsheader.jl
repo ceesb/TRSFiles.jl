@@ -193,6 +193,40 @@ struct TraceParam
     offset::Int
 end
     
+export create_trace_parameter_definitions
+"""
+Creates the trace parameter definitions in a friendly manner (see `TraceParam` for the unfriendly manner)
+
+Example use:
+```
+trs = trs_open("bla.trs", "w"; header = Dict(
+        TRSFiles.TITLE_SPACE => ntitle,
+        TRSFiles.LENGTH_DATA => ndata,
+        TRSFiles.NUMBER_SAMPLES => nsamples,
+        TRSFiles.SAMPLE_CODING => trs_coding(sampletype),
+        TRSFiles.TRACE_PARAMETER_DEFINITIONS => create_trace_parameter_definitions(
+            "INPUT" => (UInt8,16),
+            "KEY" => (UInt8,16),
+            "OUTPUT" => (UInt8,16),
+            "XYZPOSITION" => (Float32,3)
+        )))
+```
+"""
+function create_trace_parameter_definitions(defs::Vararg{
+                Pair{
+                    String, 
+                    Tuple{DataType, Int}}})
+    res = Dict{String, TraceParam}()
+
+    offset = 0
+    for (k,v) in defs
+        coding = trs_coding(v[1])
+        res[k] = TraceParam(coding, v[2], offset)
+        offset += v[2] * PRIMTYPES[coding].width
+    end
+
+    return res
+end
 
 function deserialize_trace_parameter_definition(io::IO)
     typ = read(io, UInt8)
@@ -232,21 +266,21 @@ function parse_trace_parameter_definitions(data::Vector{UInt8})
 end
 
 # Pretty print with indentation, supports nested dicts and string maps
-function dumpheaders(headers::Dict{UInt8,Any}, indent::Int=0)
+function dumpheader(headers::Dict{UInt8,Any}, indent::Int=0)
     sp = "  "^indent
     for tag in sort(collect(keys(headers)))
         info = get(HEADER_TAGS, tag, HeaderInfo("UNKNOWN", :none, "Unknown tag"))
         val = headers[tag]
         if isa(val, Dict{String})
             println("$sp$(info.name):")
-            dumpheaders(val, indent + 1)
+            dumpheader(val, indent + 1)
         else
             println("$sp$(info.name) (0x$(tag)): $(string(val))")
         end
     end
 end
 
-function dumpheaders(headers::Dict{String}, indent::Int=0)
+function dumpheader(headers::Dict{String}, indent::Int=0)
     sp = "  "^indent
 
     for (key, val) in headers

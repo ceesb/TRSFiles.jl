@@ -125,6 +125,15 @@ function trs_open(path::AbstractString, mode::AbstractString = "r"; header = not
     end
 end
 
+export trs_global_data
+"""
+Returns the global "TRACE_SET_PARAMETERS" dictionary, or throws an error if the trace set has none.
+"""
+function trs_global_data(ts::Traceset)
+    haskey(ts.header, TRACE_SET_PARAMETERS) || error("trs set doesn't have global data")
+    return ts.header[TRACE_SET_PARAMETERS]
+end
+
 struct Data{T} <: AbstractMatrix{T}
     traceset::Traceset
     offset::Int        # offset within each trace
